@@ -8,7 +8,7 @@ use std::time::{Duration, UNIX_EPOCH};
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let clock_bound_d_socket = &args[1];
+    let clock_bound_d_socket = args.get(1).map(|x| x.as_str()).unwrap_or("/run/clockboundd/clockboundd.sock");
 
     let client =
         match ClockBoundClient::new_with_path(std::path::PathBuf::from(clock_bound_d_socket)) {
@@ -27,6 +27,10 @@ fn main() {
         }
     };
 
+    let range = Duration::from_nanos(response.bound.latest.saturating_sub(response.bound.earliest));
+    let lower_range = Duration::from_nanos(response.timestamp.saturating_sub(response.bound.earliest));
+    let upper_range = Duration::from_nanos(response.bound.latest.saturating_sub(response.timestamp));
+
     let earliest_d = UNIX_EPOCH + Duration::from_nanos(response.bound.earliest);
     let latest_d = UNIX_EPOCH + Duration::from_nanos(response.bound.latest);
     let timestamp_d = UNIX_EPOCH + Duration::from_nanos(response.timestamp);
@@ -40,15 +44,18 @@ fn main() {
         .to_string();
 
     println!(
-        "The UTC timestamp {} has the following error bounds.",
-        datetime_str_timestamp
+        "{:?} - {}  + {:?} (error range = {:?})",
+        lower_range,
+        datetime_str_timestamp,
+        upper_range,
+        range
     );
-    println!(
-        "In nanoseconds since the Unix epoch: ({:?},{:?})",
-        response.bound.earliest, response.bound.latest
-    );
-    println!(
-        "In UTC in date/time format: ({}, {})",
-        datetime_str_earliest, datetime_str_latest
-    );
+    // println!(
+    //     "In nanoseconds since the Unix epoch: ({:?},{:?})",
+    //     response.bound.earliest, response.bound.latest
+    // );
+    // println!(
+    //     "In UTC in date/time format: ({}, {})",
+    //     datetime_str_earliest, datetime_str_latest
+    // );
 }
