@@ -1,0 +1,14 @@
+[Unit]
+Description=ClockBoundD
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=10
+ExecStart=/usr/local/bin/clockboundd
+RuntimeDirectory=clockboundd
+WorkingDirectory=/run/clockboundd
+User=clockbound
+
+[Install]
+WantedBy=multi-user.target

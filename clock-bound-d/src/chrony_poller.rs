@@ -24,12 +24,14 @@ pub fn poll() -> Option<Tracking> {
     let request_body = RequestBody::Tracking;
 
     // Chrony by default can be communicated with via localhost on port 323
-    let server_addr = SocketAddr::V6(SocketAddrV6::new(
-        Ipv6Addr::from_str("::1").unwrap(),
-        323,
-        0,
-        0,
-    ));
+    // let server_addr = SocketAddr::V6(SocketAddrV6::new(
+    //     Ipv6Addr::from_str("::1").unwrap(),
+    //     323,
+    //     0,
+    //     0,
+    // ));
+    let server_addr: SocketAddr = "127.0.0.1:323".parse().unwrap();
+
     let result = blocking_query(request_body, ClientOptions::default(), &server_addr);
 
     match result {
